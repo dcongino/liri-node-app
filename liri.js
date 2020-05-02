@@ -1,6 +1,7 @@
 require("dotenv").config();
 var axios = require("axios");
 var fs = require("fs");
+var moment = require("moment");
 var nodeArgs = process.argv;
 var input = process.argv[3];
 switch (nodeArgs[2]) {
@@ -60,9 +61,12 @@ function bandInfo() {
   var queryUrl = "https://rest.bandsintown.com/artists/" + bandName + "/events?app_id=trilogy"
   axios.get(queryUrl).then(
     function (response) {
+      var concertDate = response.data[0].datetime;
+      var dateFormat = "YYYY-MM-DDTH";
+      var convertedDate = moment(concertDate, dateFormat);
       console.log("Show Venue: " + response.data[0].venue.name);
       console.log("Venue Location: " + response.data[0].venue.location);
-      console.log("Show Date: " + response.data[0].datetime);
+      console.log("Show Date: " + convertedDate.format("MM/DD/YY"));
     })
 };
 function movieInfo() {
