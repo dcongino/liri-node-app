@@ -6,40 +6,35 @@ var nodeArgs = process.argv;
 var input = process.argv[3];
 switch (nodeArgs[2]) {
   case 'spotify-this-song':
-    if (input === undefined) {
-      input = 'Crash';
+    var song = "The Sign";
+    if(input){
+      song = input;
     }
-    songInfo(input);
+    songInfo(song);
     break;
   case 'concert-this':
-    if (input === undefined) {
-      input = 'The Sign';
+    var band = "Bad Omens"
+    if (input){
+      band = input;
     }
-    bandInfo(input);
+    bandInfo(band);
     break;
   case 'movie-this':
-    if (input === undefined) {
-      input = 'Mr. Nobody';
+    var movie = "Mr. Nobody"
+    if (input){
+      movie = input;
     }
-    movieInfo(input);
+    movieInfo(movie);
     break;
   case 'do-what-it-says':
     autoFill();
     break;
 }
-function songInfo() {
+function songInfo(song) {
   var Spotify = require("node-spotify-api")
   var keys = require("./keys.js");
   var spotify = new Spotify(keys.spotify);
-  var songName = "";
-  for (var i = 3; i < nodeArgs.length; i++) {
-    if (i > 3 && i < nodeArgs.length) {
-      songName = songName + "+" + nodeArgs[i];
-    } else {
-      songName += nodeArgs[i];
-    }
-  }
-  spotify.search({ type: 'track', query: songName, limit: 1 }, function (err, data) {
+  spotify.search({ type: 'track', query: song, limit: 1 }, function (err, data) {
     if (err) {
       return console.log('Error occurred: ' + err);
     }
@@ -49,36 +44,20 @@ function songInfo() {
     console.log(JSON.stringify("Album: " + data.tracks.items[0].album.name));
   });
 };
-function bandInfo() {
-  var bandName = "";
-  for (var i = 3; i < nodeArgs.length; i++) {
-    if (i > 3 && i < nodeArgs.length) {
-      bandName = bandName + "+" + nodeArgs[i];
-    } else {
-      bandName += nodeArgs[i];
-    }
-  }
-  var queryUrl = "https://rest.bandsintown.com/artists/" + bandName + "/events?app_id=trilogy"
+function bandInfo(band) {
+  var queryUrl = "https://rest.bandsintown.com/artists/" + band + "/events?app_id=trilogy"
   axios.get(queryUrl).then(
     function (response) {
       var concertDate = response.data[0].datetime;
       var dateFormat = "YYYY-MM-DDTH";
-      var convertedDate = moment(concertDate, dateFormat);
+      var convertedDate = moment(concertDate, dateFormat)
       console.log("Show Venue: " + response.data[0].venue.name);
       console.log("Venue Location: " + response.data[0].venue.location);
       console.log("Show Date: " + convertedDate.format("MM/DD/YY"));
     })
 };
-function movieInfo() {
-  var movieName = "";
-  for (var i = 3; i < nodeArgs.length; i++) {
-    if (i > 3 && i < nodeArgs.length) {
-      movieName = movieName + "+" + nodeArgs[i];
-    } else {
-      movieName += nodeArgs[i];
-    }
-  }
-  var queryUrl = "http://www.omdbapi.com/?t=" + movieName + "&tomatoes&apikey=1465f66e"
+function movieInfo(movie) {
+  var queryUrl = "http://www.omdbapi.com/?t=" + movie + "&tomatoes&apikey=1465f66e"
   axios.get(queryUrl).then(
     function (response) {
       console.log("Movie Title: " + response.data.Title);
@@ -96,15 +75,16 @@ function autoFill() {
     if (err) {
       return console.log(err);
     }
-    data = data.split(", ");
-    //input
-    if (data === "spotify-this-song") {
-      songInfo()
-    } else if (data === "concert-this") {
-      bandInfo()
-    } else if (data === "movie-this") {
-      movieInfo()
+    splitData = data.split(",");
+    console.log(splitData[0]);
+    if (splitData[0] === "spotify-this-song") {
+      songInfo(splitData[1]);
+    } else if (splitData[0] === "concert-this") {
+      bandInfo(splitData[1])
+    } else if (splitData[0] === "movie-this") {
+      movieInfo(splitData[1])
+    } else {
+      console.log("Nope")
     }
-    console.log(data)
   });
 };
